@@ -3,8 +3,6 @@ import api from '../services/api';
 
 export default function HistorialVentas() {
     const [ventas, setVentas] = useState([]);
-    
-    // Nuevo estado para controlar qué imagen se está viendo
     const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
 
     useEffect(() => {
@@ -20,34 +18,48 @@ export default function HistorialVentas() {
     }, []);
 
     return (
-        <div className="dashboard-container" style={{ display: 'block', maxWidth: '1100px', margin: '40px auto' }}>
+        <div className="dashboard-container" style={{ display: 'block', maxWidth: '1200px', margin: '40px auto' }}>
             <h2 style={{ color: 'var(--primary)' }}>Relación de Ventas</h2>
             
             <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', background: 'white', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
                 <thead>
                     <tr style={{ backgroundColor: 'var(--primary)', color: 'white', textAlign: 'left' }}>
                         <th style={{ padding: '15px' }}>ID</th>
-                        <th style={{ padding: '15px' }}>Vendedor</th>
-                        <th style={{ padding: '15px' }}>Detalle de Compra</th>
-                        <th style={{ padding: '15px' }}>Total (Referencial)</th>
+                        <th style={{ padding: '15px' }}>Vendedor y Detalle</th>
+                        <th style={{ padding: '15px' }}>Productos Vendidos (Cantidades)</th>
+                        <th style={{ padding: '15px' }}>Total (Ref.)</th>
                         <th style={{ padding: '15px', textAlign: 'center' }}>Comprobante</th>
                     </tr>
                 </thead>
                 <tbody>
                     {ventas.map(venta => (
                         <tr key={venta.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                            <td style={{ padding: '15px', fontWeight: '500' }}>#{venta.id}</td>
-                            <td style={{ padding: '15px' }}>{venta.nombre_vendedor}</td>
+                            <td style={{ padding: '15px', fontWeight: '500', verticalAlign: 'top' }}>#{venta.id}</td>
                             
-                            {/* Tu requerimiento: Detalle subrayado y resaltado */}
-                            <td style={{ padding: '15px', textDecoration: 'underline', fontWeight: 'bold', color: 'var(--text-main)' }}>
-                                {venta.detalle_compra}
+                            <td style={{ padding: '15px', verticalAlign: 'top' }}>
+                                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>{venta.nombre_vendedor}</div>
+                                <div style={{ fontSize: '13px', textDecoration: 'underline', color: 'var(--text-main)' }}>
+                                    {venta.detalle_compra}
+                                </div>
                             </td>
                             
-                            <td style={{ padding: '15px', fontWeight: 'bold', color: 'var(--primary)' }}>
-                                S/ {venta.total}
+                            {/* AQUÍ ESTÁ LA NUEVA LISTA DE PRODUCTOS */}
+                            <td style={{ padding: '15px', verticalAlign: 'top' }}>
+                                <ul style={{ margin: 0, paddingLeft: '15px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                                    {venta.productos_vendidos?.map((prod, idx) => (
+                                        <li key={idx} style={{ marginBottom: '4px' }}>
+                                            <span style={{ fontWeight: 'bold', color: 'var(--text-main)' }}>{prod.cantidad}x</span> {prod.nombre} 
+                                            <span style={{ opacity: 0.7 }}> (a {prod.precio_unitario})</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </td>
-                            <td style={{ padding: '15px', textAlign: 'center' }}>
+                            
+                            <td style={{ padding: '15px', fontWeight: 'bold', color: 'var(--primary)', verticalAlign: 'top' }}>
+                                {venta.total}
+                            </td>
+                            
+                            <td style={{ padding: '15px', textAlign: 'center', verticalAlign: 'top' }}>
                                 <button 
                                     onClick={() => setImagenSeleccionada(venta.url_captura)}
                                     className="btn btn-primary"
@@ -76,7 +88,6 @@ export default function HistorialVentas() {
                             <h3 style={{ margin: 0, color: 'var(--primary)' }}>Comprobante de Pago</h3>
                             <button onClick={() => setImagenSeleccionada(null)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</button>
                         </div>
-                        
                         <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
                             <img 
                                 src={imagenSeleccionada} 
@@ -84,7 +95,6 @@ export default function HistorialVentas() {
                                 style={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain', borderRadius: '4px' }} 
                             />
                         </div>
-                        
                         <button className="btn btn-primary" onClick={() => setImagenSeleccionada(null)} style={{ marginTop: '20px', width: '100%' }}>
                             Cerrar Visor
                         </button>

@@ -3,6 +3,10 @@ import api from '../services/api';
 
 export default function AdminStock() {
     const [productos, setProductos] = useState([]);
+    
+    // Estados para la seguridad
+    const [autenticado, setAutenticado] = useState(false);
+    const [password, setPassword] = useState('');
 
     const cargarProductos = async () => {
         try {
@@ -14,16 +18,27 @@ export default function AdminStock() {
     };
 
     useEffect(() => {
-        cargarProductos();
-    }, []);
+        if (autenticado) {
+            cargarProductos();
+        }
+    }, [autenticado]);
+
+    const verificarPassword = (e) => {
+        e.preventDefault();
+        // AQUÍ CAMBIAS LA CONTRASEÑA
+        if (password === 'admin123') {
+            setAutenticado(true);
+        } else {
+            alert('❌ Contraseña incorrecta. Acceso denegado.');
+            setPassword('');
+        }
+    };
 
     const agregarStock = async (id, nombre, stockActual) => {
         const cantidadStr = prompt(`¿Cuántas unidades nuevas vas a AGREGAR de "${nombre}"?\nStock actual: ${stockActual}`);
-        
         if (!cantidadStr) return; 
 
         const cantidadAgregar = parseInt(cantidadStr);
-        
         if (isNaN(cantidadAgregar) || cantidadAgregar <= 0) {
             return alert('Por favor ingresa una cantidad válida mayor a cero.');
         }
@@ -39,14 +54,45 @@ export default function AdminStock() {
         }
     };
 
+    // PANTALLA DE BLOQUEO (Si no está autenticado)
+    if (!autenticado) {
+        return (
+            <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <div style={{ background: 'white', padding: '40px', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', textAlign: 'center', maxWidth: '400px', width: '100%', borderTop: '5px solid var(--primary)' }}>
+                    <h2 style={{ color: 'var(--primary)', margin: '0 0 10px 0' }}>Acceso Restringido</h2>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Ingrese la contraseña de almacén para reponer stock.</p>
+                    <form onSubmit={verificarPassword}>
+                        <input 
+                            type="password" 
+                            className="input-control" 
+                            placeholder="Contraseña..." 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            autoFocus
+                            style={{ textAlign: 'center', fontSize: '18px', letterSpacing: '2px' }}
+                        />
+                        <button type="submit" className="btn btn-primary" style={{ marginTop: '20px', width: '100%' }}>
+                            Ingresar al Sistema
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
+    // PANTALLA PRINCIPAL (Si ya puso la clave)
     return (
         <div className="dashboard-container" style={{ display: 'block', maxWidth: '1000px', margin: '40px auto' }}>
-            <h2 style={{ color: 'var(--primary)' }}>Control de Almacén y Reposición</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 style={{ color: 'var(--primary)' }}>Control de Almacén y Reposición</h2>
+                <button onClick={() => setAutenticado(false)} className="btn" style={{ background: '#e2e8f0', color: '#475569', padding: '8px 15px' }}>🔒 Cerrar Sesión</button>
+            </div>
+            
             <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', background: 'white', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
                 <thead>
                     <tr style={{ backgroundColor: 'var(--primary)', color: 'white', textAlign: 'left' }}>
                         <th style={{ padding: '15px' }}>Producto</th>
-                        <th style={{ padding: '15px' }}>Categoría / Moneda</th>
+                        <th style={{ padding: '15px' }}>Categoría</th>
                         <th style={{ padding: '15px', textAlign: 'center' }}>Stock Actual</th>
                         <th style={{ padding: '15px', textAlign: 'center' }}>Acción</th>
                     </tr>
