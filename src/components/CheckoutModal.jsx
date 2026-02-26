@@ -17,7 +17,9 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
 
     const manejarEnvio = async (e) => {
         e.preventDefault();
-        if (!archivo) return alert('Por favor, sube la captura de pantalla del pago.');
+        if (metodoPago === 'Yape/Plin' && !archivo) {
+    return alert('Por favor, sube la captura de pantalla del pago.');
+}
 
         setCargando(true);
         const formData = new FormData();
@@ -33,7 +35,9 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
         
         const totalGeneral = totalSoles + (totalDolares * 3.8); 
         formData.append('total', totalGeneral); 
-        formData.append('captura', archivo);
+        if (archivo) {
+    formData.append('captura', archivo);
+}
 
         try {
             await api.post('/ventas', formData);
@@ -118,10 +122,13 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                             <textarea required className="input-control" rows="2" value={detalle} onChange={(e) => setDetalle(e.target.value)} />
                         </div>
 
-                        <div style={{ marginTop: '15px', padding: '15px', background: '#f8fafc', border: '1px dashed var(--primary)', borderRadius: '8px' }}>
-                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--primary)' }}>📷 Subir Captura:</label>
-                            <input type="file" accept="image/*" required onChange={(e) => setArchivo(e.target.files[0])} style={{ width: '100%' }} />
-                        </div>
+                        {/* Renderizado condicional: Solo se muestra si es Yape/Plin */}
+{metodoPago === 'Yape/Plin' && (
+    <div style={{ marginTop: '15px', padding: '15px', background: '#f8fafc', border: '1px dashed var(--primary)', borderRadius: '8px' }}>
+        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--primary)' }}>📷 Subir Captura:</label>
+        <input type="file" accept="image/*" required onChange={(e) => setArchivo(e.target.files[0])} style={{ width: '100%' }} />
+    </div>
+)}
 
                         <div style={{ marginTop: '25px', display: 'flex', gap: '15px' }}>
                             <button type="button" onClick={onClose} className="btn" style={{ flex: 1, background: '#e2e8f0' }}>Cancelar</button>
