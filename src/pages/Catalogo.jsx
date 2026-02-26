@@ -10,7 +10,16 @@ export default function Catalogo() {
     const [busqueda, setBusqueda] = useState('');
 
     useEffect(() => {
+        // 1. Carga los productos inmediatamente al entrar a la página
         cargarProductos();
+
+        // 2. Configura un temporizador para consultar el stock cada 5 segundos (5000 milisegundos)
+        const intervalo = setInterval(() => {
+            cargarProductos();
+        }, 5000);
+
+        // 3. Limpieza de memoria: Apaga el temporizador si el vendedor se va a otra pestaña (ej. Reposición)
+        return () => clearInterval(intervalo);
     }, []);
 
     const cargarProductos = async () => {

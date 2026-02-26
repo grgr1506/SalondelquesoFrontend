@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 
 export default function AdminStock() {
     const [productos, setProductos] = useState([]);
-    
-    // Estados para la seguridad
     const [autenticado, setAutenticado] = useState(false);
     const [password, setPassword] = useState('');
 
@@ -13,7 +11,7 @@ export default function AdminStock() {
             const respuesta = await api.get('/productos');
             setProductos(respuesta.data);
         } catch (error) {
-            console.error('Error al cargar productos');
+            console.error('Error al cargar productos', error);
         }
     };
 
@@ -25,7 +23,6 @@ export default function AdminStock() {
 
     const verificarPassword = (e) => {
         e.preventDefault();
-        // AQUÍ CAMBIAS LA CONTRASEÑA
         if (password === 'admin123') {
             setAutenticado(true);
         } else {
@@ -54,13 +51,13 @@ export default function AdminStock() {
         }
     };
 
-    // PANTALLA DE BLOQUEO (Si no está autenticado)
+    // PANTALLA 1: PEDIR CONTRASEÑA
     if (!autenticado) {
         return (
             <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <div style={{ background: 'white', padding: '40px', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', textAlign: 'center', maxWidth: '400px', width: '100%', borderTop: '5px solid var(--primary)' }}>
+                <div style={{ background: 'white', padding: '40px', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', textAlign: 'center', maxWidth: '400px', width: '90%', borderTop: '5px solid var(--primary)' }}>
                     <h2 style={{ color: 'var(--primary)', margin: '0 0 10px 0' }}>Acceso Restringido</h2>
-                    <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Ingrese la contraseña de almacén para reponer stock.</p>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Ingrese la contraseña de almacén.</p>
                     <form onSubmit={verificarPassword}>
                         <input 
                             type="password" 
@@ -80,44 +77,46 @@ export default function AdminStock() {
         );
     }
 
-    // PANTALLA PRINCIPAL (Si ya puso la clave)
+    // PANTALLA 2: INVENTARIO (Si la clave es correcta)
     return (
         <div className="dashboard-container" style={{ display: 'block', maxWidth: '1000px', margin: '40px auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 style={{ color: 'var(--primary)' }}>Control de Almacén y Reposición</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                <h2 style={{ color: 'var(--primary)', margin: 0 }}>Control de Almacén</h2>
                 <button onClick={() => setAutenticado(false)} className="btn" style={{ background: '#e2e8f0', color: '#475569', padding: '8px 15px' }}>🔒 Cerrar Sesión</button>
             </div>
             
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', background: 'white', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-                <thead>
-                    <tr style={{ backgroundColor: 'var(--primary)', color: 'white', textAlign: 'left' }}>
-                        <th style={{ padding: '15px' }}>Producto</th>
-                        <th style={{ padding: '15px' }}>Categoría</th>
-                        <th style={{ padding: '15px', textAlign: 'center' }}>Stock Actual</th>
-                        <th style={{ padding: '15px', textAlign: 'center' }}>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {productos.map(prod => (
-                        <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                            <td style={{ padding: '15px', fontWeight: '500' }}>{prod.nombre}</td>
-                            <td style={{ padding: '15px', color: 'var(--text-muted)' }}>{prod.detalle}</td>
-                            <td style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', fontSize: '18px', color: prod.stock > 0 ? 'var(--text-main)' : 'var(--accent)' }}>
-                                {prod.stock}
-                            </td>
-                            <td style={{ padding: '15px', textAlign: 'center' }}>
-                                <button 
-                                    onClick={() => agregarStock(prod.id, prod.nombre, prod.stock)}
-                                    className="btn btn-primary"
-                                    style={{ width: 'auto', padding: '8px 15px', fontSize: '14px' }}
-                                >
-                                    + Agregar Stock
-                                </button>
-                            </td>
+            <div className="table-responsive">
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr style={{ backgroundColor: 'var(--primary)', color: 'white', textAlign: 'left' }}>
+                            <th style={{ padding: '15px' }}>Producto</th>
+                            <th style={{ padding: '15px' }}>Categoría</th>
+                            <th style={{ padding: '15px', textAlign: 'center' }}>Stock</th>
+                            <th style={{ padding: '15px', textAlign: 'center' }}>Acción</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {productos.map(prod => (
+                            <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'white' }}>
+                                <td style={{ padding: '15px', fontWeight: '500' }}>{prod.nombre}</td>
+                                <td style={{ padding: '15px', color: 'var(--text-muted)' }}>{prod.detalle}</td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', fontSize: '18px', color: prod.stock > 0 ? 'var(--text-main)' : 'var(--accent)' }}>
+                                    {prod.stock}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center' }}>
+                                    <button 
+                                        onClick={() => agregarStock(prod.id, prod.nombre, prod.stock)}
+                                        className="btn btn-primary"
+                                        style={{ width: 'auto', padding: '8px 15px', fontSize: '14px', whiteSpace: 'nowrap' }}
+                                    >
+                                        + Agregar Stock
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

@@ -1,6 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* =========================================================
+   RESET ANTI-SCROLL HORIZONTAL (LA CAJA FUERTE)
+   ========================================================= */
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden !important; /* Corta cualquier deslizamiento lateral del fondo */
+    margin: 0;
+    padding: 0;
+}
 
+*, *::before, *::after {
+    box-sizing: border-box !important; /* Impide que el padding ensanche los divs */
+}
 /* --- VARIABLES DE GLI --- */
 :root {
   --bg-body: #f1f5f9;
@@ -239,6 +252,13 @@ body {
   background-color: #f8fafc;
   transform: translateX(5px);
 }
+/* --- TAMAÑO DEL LOGO EN LA BARRA --- */
+.logo-img {
+    height: 45px; /* Ajusta este número si lo quieres más grande o más chico */
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
 
 .item-lista.agotado {
   opacity: 0.5;
@@ -301,4 +321,223 @@ body {
 .checkout-formulario {
   padding: 40px;
   width: 60%;
+}
+/* =========================================================
+   DISEÑO RESPONSIVO MULTIPANTALLA (GLI DEFINITIVO)
+   ========================================================= */
+
+/* --- 1. ESTRUCTURA PRINCIPAL (Desktop y Pantallas Grandes) --- */
+.dashboard-container {
+    display: flex;
+    gap: 30px;
+    max-width: 1400px; /* Para que en monitores gigantes no se estire demasiado */
+    margin: 30px auto;
+    padding: 0 20px;
+    align-items: flex-start; /* Evita que el carrito se estire hacia abajo */
+}
+
+/* El lado izquierdo del catálogo toma todo el espacio disponible */
+.dashboard-container > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+/* El carrito se queda fijo a la derecha mientras haces scroll en los productos */
+.carrito-sidebar {
+    width: 400px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+/* --- 2. CONTENEDOR DE TABLAS (Historial y Reposición) --- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS/Android */
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-top: 20px;
+}
+.table-responsive table {
+    width: 100%;
+    min-width: 800px; /* Protege el diseño: si la pantalla es menor a 800px, activa el scroll horizontal */
+    border-collapse: collapse;
+}
+
+/* =========================================================
+   BREAKPOINTS (PUNTOS DE QUIEBRE)
+   ========================================================= */
+
+/* --- PANTALLAS MEDIANAS Y TABLETS (hasta 1024px) --- */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        flex-direction: column; /* Apila el carrito debajo del catálogo */
+        gap: 20px;
+        margin: 20px auto;
+    }
+
+    .carrito-sidebar {
+        width: 100%;
+        position: static; /* Quita el modo fijo */
+        max-height: none;
+        border-left: none;
+        border-top: 4px solid var(--primary);
+    }
+}
+/* --- CELULARES (hasta 768px) --- */
+@media (max-width: 768px) {
+    .dashboard-container {
+            padding: 0 10px;
+            margin: 10px auto;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            overflow-anchor: none; /* TRUCO: Evita que la pantalla salte sola */
+        }
+
+        /* 1. El Catálogo (productos) pasa a ser el elemento de abajo */
+        .dashboard-container > div:first-child {
+            order: 2;
+        }
+
+        /* 2. El Carrito pasa a ser el elemento de arriba (Sin flotar) */
+        .carrito-sidebar {
+            order: 1;
+            position: static !important; /* Anula el panel flotante feo */
+            width: 100% !important;
+            max-height: 280px; /* Un tamaño moderado que no invade la pantalla */
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            border-top: 4px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+            overflow-y: auto; /* Si se llena de cosas, el scroll es por dentro */
+        }
+
+        /* Neutralizar los anchos fijos de React en el Catálogo */
+        .item-lista {
+            padding: 15px;
+            display: flex;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px;
+            width: 100%;
+        }
+    /* ================================================= */
+    /* NAVBAR MÓVIL (Barra superior) */
+    /* ================================================= */
+    .navbar {
+        display: flex;
+        flex-direction: column; /* Apila el logo arriba y los botones abajo */
+        align-items: center;
+        padding: 10px 0; /* Quitamos padding lateral para ganar espacio */
+        width: 100vw;
+        max-width: 100vw;
+    }
+
+    .navbar-brand {
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .nav-links {
+        display: flex;
+        width: 100%;
+        justify-content: space-evenly; /* Distribuye los 3 botones con el mismo espacio */
+        gap: 5px;
+        padding: 0 5px;
+    }
+
+    /* Ajuste perfecto para los botones de navegación en celular */
+    .nav-links a {
+        font-size: 13px; /* Letra un poco más pequeña para que quepan */
+        padding: 8px 5px;
+        text-align: center;
+        flex: 1; /* Hace que los 3 botones midan exactamente lo mismo */
+        white-space: nowrap; /* Evita que la palabra "Reposición" se parta en dos líneas */
+        border-radius: 6px;
+    }
+
+    /* Neutralizar los anchos fijos de React en el Catálogo */
+    .item-lista {
+        padding: 15px;
+        display: flex;
+        flex-direction: column !important; /* Apila Nombre, Stock y Precio hacia abajo */
+        align-items: flex-start !important;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    /* Quitamos los anchos de 100px y 120px que empujaban la pantalla */
+    .item-lista > div {
+        width: 100% !important; 
+        text-align: left !important;
+    }
+
+    /* Acomodamos el precio para que resalte a la izquierda */
+    .item-lista > div:last-child {
+        font-size: 20px !important;
+        color: var(--accent) !important;
+    }
+
+    /* Ajuste del Sidebar del Carrito */
+    .carrito-sidebar {
+        width: 100% !important;
+        max-width: 100vw;
+        padding: 15px 10px;
+    }
+
+    /* Checkout Modal (Pantalla de Cobro adaptada) */
+    .checkout-card {
+        flex-direction: column;
+        height: 95vh;
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin: 0;
+        border-radius: 0; /* A pantalla completa sin bordes redondeados */
+    }
+
+    .checkout-resumen, .checkout-formulario {
+        width: 100% !important;
+        padding: 20px 15px;
+        overflow-x: hidden;
+    }
+
+    /* Inputs y Formularios al 100% */
+    .checkout-formulario form > div {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px;
+    }
+    
+    .input-control {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    /* Popups Generales (Agregar Cantidad, Ver Imagen) */
+    .modal-content { 
+        width: 90% !important; 
+        max-width: 100vw;
+        padding: 20px 15px; 
+        margin: auto;
+    }
+
+    /* Tablas: Forzar a que el contenedor sea el único que hace scroll lateral */
+    .table-responsive {
+        width: calc(100vw - 20px) !important; /* El ancho exacto de la pantalla menos el padding */
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
