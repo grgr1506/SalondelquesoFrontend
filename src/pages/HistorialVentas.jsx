@@ -24,6 +24,28 @@ export default function HistorialVentas() {
             setFilaExpandida(id); 
         }
     };
+    const descargarImagen = async (url, idVenta) => {
+        try {
+            // Obtenemos la imagen desde Cloudinary
+            const response = await fetch(url);
+            const blob = await response.blob();
+            
+            // Creamos un enlace temporal en el navegador para forzar la descarga
+            const urlBlob = window.URL.createObjectURL(blob);
+            const enlace = document.createElement('a');
+            enlace.href = urlBlob;
+            enlace.download = `comprobante_venta_${idVenta}.jpg`; // Nombre del archivo que se descargará
+            
+            // Simulamos el clic y limpiamos
+            document.body.appendChild(enlace);
+            enlace.click();
+            document.body.removeChild(enlace);
+            window.URL.revokeObjectURL(urlBlob);
+        } catch (error) {
+            console.error('Error al descargar:', error);
+            alert('Hubo un problema al intentar descargar la imagen.');
+        }
+    };
 
     return (
         <div className="dashboard-container" style={{ display: 'block', maxWidth: '1200px', margin: '40px auto' }}>
@@ -96,13 +118,21 @@ export default function HistorialVentas() {
                                                 </div>
 
                                                 {/* Imagen */}
-                                                <div style={{ textAlign: 'center' }}>
-                                                    <img 
-                                                        src={venta.url_captura} 
-                                                        alt="Comprobante" 
-                                                        style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-light)' }} 
-                                                    />
-                                                </div>
+<div style={{ textAlign: 'center' }}>
+    <img 
+        src={venta.url_captura} 
+        alt="Comprobante" 
+        style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-light)', marginBottom: '15px' }} 
+    />
+    <br />
+    <button 
+        onClick={() => descargarImagen(venta.url_captura, venta.id)}
+        className="btn"
+        style={{ padding: '8px 15px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
+    >
+        ⬇️ Descargar Captura
+    </button>
+</div>
                                             </div>
                                         </td>
                                     </tr>
