@@ -100,9 +100,26 @@ export default function AdminStock() {
                             <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'white' }}>
                                 <td style={{ padding: '15px', fontWeight: '500' }}>{prod.nombre}</td>
                                 <td style={{ padding: '15px', color: 'var(--text-muted)' }}>{prod.detalle}</td>
-                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', fontSize: '18px', color: prod.stock > 0 ? 'var(--text-main)' : 'var(--accent)' }}>
-                                    {prod.stock}
-                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center' }}>
+    {/* Número del stock */}
+    <div style={{ fontWeight: 'bold', fontSize: '18px', color: prod.stock <= 5 ? 'red' : 'var(--text-main)' }}>
+        {prod.stock}
+    </div>
+    
+    {/* Etiqueta para Bajo Stock (1 a 5 unidades) */}
+    {prod.stock <= 5 && prod.stock > 0 && (
+        <div style={{ fontSize: '12px', color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
+            ¡Bajo Stock!
+        </div>
+    )}
+    
+    {/* Etiqueta para Agotado (0 unidades) */}
+    {prod.stock === 0 && (
+        <div style={{ fontSize: '12px', color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
+            ¡Agotado!
+        </div>
+    )}
+</td>
                                 <td style={{ padding: '15px', textAlign: 'center' }}>
                                     <button 
                                         onClick={() => agregarStock(prod.id, prod.nombre, prod.stock)}

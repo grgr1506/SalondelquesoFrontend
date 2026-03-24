@@ -111,11 +111,18 @@ export default function Catalogo() {
                                 </div>
                             </div>
                             <div style={{ textAlign: 'center', width: '100px' }}>
-                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Stock</span>
-                                <div style={{ fontWeight: 'bold', color: prod.stock > 0 ? 'var(--text-main)' : 'var(--accent)' }}>
-                                    {prod.stock}
-                                </div>
-                            </div>
+    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Stock</span>
+    {/* Cambiamos el color a rojo si es menor o igual a 5 */}
+    <div style={{ fontWeight: 'bold', color: prod.stock <= 5 ? 'red' : 'var(--text-main)' }}>
+        {prod.stock}
+    </div>
+    {/* Alerta de bajo stock: Solo aparece si hay entre 1 y 5 unidades */}
+    {prod.stock <= 5 && prod.stock > 0 && (
+        <div style={{ fontSize: '11px', color: 'red', fontWeight: 'bold', marginTop: '2px' }}>
+            ¡Bajo Stock!
+        </div>
+    )}
+</div>
                             <div style={{ textAlign: 'right', width: '120px', fontWeight: '700', fontSize: '18px', color: 'var(--primary)' }}>
                                 {obtenerMoneda(prod.detalle)} {prod.precio}
                             </div>
