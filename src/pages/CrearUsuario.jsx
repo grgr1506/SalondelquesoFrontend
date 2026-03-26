@@ -17,10 +17,15 @@ const CrearUsuario = () => {
 
     const cargarUsuarios = async () => {
         try {
+            console.log("Intentando obtener usuarios...");
             const res = await api.get('/usuarios', config);
+            console.log("¡Éxito! El backend respondió con:", res.data);
             setUsuarios(res.data);
         } catch (error) {
-            console.error("Error al cargar usuarios", error);
+            console.error("Falló la carga de usuarios.");
+            console.error("Detalle del error:", error.response?.data || error.message);
+            console.error("Código de estado:", error.response?.status);
+            alert("No se pudieron cargar los usuarios. Revisa la consola."); // Aviso visual
         }
     };
 
