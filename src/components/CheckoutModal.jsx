@@ -2,10 +2,11 @@ import { useState } from 'react';
 import api from '../services/api';
 
 export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClose, onVentaExitosa }) {
-    const [vendedor, setVendedor] = useState('');
+    // Leemos el usuario que inició sesión y lo ponemos como valor inicial
+    const usuarioLogeado = JSON.parse(localStorage.getItem('usuario')) || {};
+    const [vendedor, setVendedor] = useState(usuarioLogeado.username || '');
     const [detalle, setDetalle] = useState('');
     
-    // NUEVOS ESTADOS SOLICITADOS POR EL EQUIPO
     const [metodoPago, setMetodoPago] = useState('Yape/Plin');
     const [tipoDocumento, setTipoDocumento] = useState('Boleta');
     const [celular, setCelular] = useState('');
@@ -18,26 +19,23 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     const manejarEnvio = async (e) => {
         e.preventDefault();
         if (metodoPago === 'Yape/Plin' && !archivo) {
-    return alert('Por favor, sube la captura de pantalla del pago.');
-}
+            return alert('Por favor, sube la captura de pantalla del pago.');
+        }
 
         setCargando(true);
         const formData = new FormData();
         formData.append('nombre_vendedor', vendedor);
         formData.append('detalle_compra', detalle);
-        
-        // AGREGAMOS LOS NUEVOS DATOS AL ENVÍO
         formData.append('metodo_pago', metodoPago);
         formData.append('tipo_documento', tipoDocumento);
         formData.append('celular', celular);
-        
         formData.append('carrito', JSON.stringify(carrito));
         
         const totalGeneral = totalSoles + (totalDolares * 3.8); 
         formData.append('total', totalGeneral); 
         if (archivo) {
-    formData.append('captura', archivo);
-}
+            formData.append('captura', archivo);
+        }
 
         try {
             await api.post('/ventas', formData);
@@ -55,7 +53,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
         <div className="checkout-overlay">
             <div className="checkout-card" style={{ maxWidth: '1000px' }}>
                 
-                {/* COLUMNA IZQUIERDA: RESUMEN DE COMPRA (Mismo código anterior) */}
+                {/* COLUMNA IZQUIERDA: RESUMEN DE COMPRA */}
                 <div className="checkout-resumen">
                     <h2 style={{ margin: '0 0 20px 0', fontSize: '28px' }}>Resumen de Orden</h2>
                     <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px', paddingRight: '10px' }}>
@@ -89,7 +87,13 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div>
                                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '5px', fontSize: '14px' }}>Vendedor:</label>
-                                <input type="text" required className="input-control" value={vendedor} onChange={(e) => setVendedor(e.target.value)} />
+                                <input 
+                                    type="text" 
+                                    value={vendedor} 
+                                    readOnly 
+                                    className="input-control" 
+                                    style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }} 
+                                />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '5px', fontSize: '14px' }}>Celular (Cliente):</label>
@@ -122,13 +126,12 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                             <textarea required className="input-control" rows="2" value={detalle} onChange={(e) => setDetalle(e.target.value)} />
                         </div>
 
-                        {/* Renderizado condicional: Solo se muestra si es Yape/Plin */}
-{metodoPago === 'Yape/Plin' && (
-    <div style={{ marginTop: '15px', padding: '15px', background: '#f8fafc', border: '1px dashed var(--primary)', borderRadius: '8px' }}>
-        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--primary)' }}>📷 Subir Captura:</label>
-        <input type="file" accept="image/*" required onChange={(e) => setArchivo(e.target.files[0])} style={{ width: '100%' }} />
-    </div>
-)}
+                        {metodoPago === 'Yape/Plin' && (
+                            <div style={{ marginTop: '15px', padding: '15px', background: '#f8fafc', border: '1px dashed var(--primary)', borderRadius: '8px' }}>
+                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--primary)' }}>📷 Subir Captura:</label>
+                                <input type="file" accept="image/*" required onChange={(e) => setArchivo(e.target.files[0])} style={{ width: '100%' }} />
+                            </div>
+                        )}
 
                         <div style={{ marginTop: '25px', display: 'flex', gap: '15px' }}>
                             <button type="button" onClick={onClose} className="btn" style={{ flex: 1, background: '#e2e8f0' }}>Cancelar</button>
