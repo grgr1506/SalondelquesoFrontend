@@ -19,7 +19,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     const manejarEnvio = async (e) => {
         e.preventDefault();
         if (metodoPago === 'Yape/Plin' && !archivo) {
-            return alert('Por favor, sube la captura de pantalla del pago.');
+            return alert('Por favor, sube o toma la captura de pantalla del pago.');
         }
 
         setCargando(true);
@@ -80,7 +80,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                 <div className="checkout-formulario" style={{ overflowY: 'auto', maxHeight: '90vh' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2 style={{ margin: 0, color: 'var(--primary)' }}>Completar Venta</h2>
-                        <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</button>
+                        <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</button>
                     </div>
 
                     <form onSubmit={manejarEnvio}>
@@ -126,15 +126,52 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                             <textarea required className="input-control" rows="2" value={detalle} onChange={(e) => setDetalle(e.target.value)} />
                         </div>
 
+                        {/* BOTÓN DE CÁMARA NATIVA PARA YAPE/PLIN */}
                         {metodoPago === 'Yape/Plin' && (
-                            <div style={{ marginTop: '15px', padding: '15px', background: '#f8fafc', border: '1px dashed var(--primary)', borderRadius: '8px' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', color: 'var(--primary)' }}>📷 Subir Captura:</label>
-                                <input type="file" accept="image/*" required onChange={(e) => setArchivo(e.target.files[0])} style={{ width: '100%' }} />
+                            <div style={{ marginTop: '20px', marginBottom: '10px' }}>
+                                <label 
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '20px',
+                                        border: `2px dashed ${archivo ? 'var(--success)' : 'var(--primary)'}`,
+                                        backgroundColor: archivo ? '#ecfdf5' : '#f8fafc',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    <span style={{ fontSize: '32px', marginBottom: '8px' }}>
+                                        {archivo ? '✅' : '📷'}
+                                    </span>
+                                    <span style={{ fontWeight: '600', fontSize: '16px', color: archivo ? 'var(--success)' : 'var(--primary)' }}>
+                                        {archivo ? 'Foto capturada con éxito' : 'Tomar foto del Yape / Plin'}
+                                    </span>
+                                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px', textAlign: 'center' }}>
+                                        {archivo ? archivo.name : 'Se abrirá la cámara de tu celular'}
+                                    </span>
+                                    
+                                    {/* INPUT OCULTO QUE ACTIVA LA CÁMARA */}
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        capture="environment" 
+                                        style={{ display: 'none' }} 
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setArchivo(file);
+                                            }
+                                        }} 
+                                    />
+                                </label>
                             </div>
                         )}
 
                         <div style={{ marginTop: '25px', display: 'flex', gap: '15px' }}>
-                            <button type="button" onClick={onClose} className="btn" style={{ flex: 1, background: '#e2e8f0' }}>Cancelar</button>
+                            <button type="button" onClick={onClose} className="btn" style={{ flex: 1, background: '#e2e8f0', color: 'var(--text-main)' }}>Cancelar</button>
                             <button type="submit" className="btn btn-success" disabled={cargando} style={{ flex: 2 }}>
                                 {cargando ? 'Registrando...' : 'Confirmar Venta'}
                             </button>
