@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import * as XLSX from 'xlsx'; // Importamos la librería de Excel
 
 export default function HistorialVentas() {
     const [ventas, setVentas] = useState([]);
@@ -24,19 +25,17 @@ export default function HistorialVentas() {
             setFilaExpandida(id);
         }
     };
+
     const descargarImagen = async (url, idVenta) => {
         try {
-            // Obtenemos la imagen desde Cloudinary
             const response = await fetch(url);
             const blob = await response.blob();
 
-            // Creamos un enlace temporal en el navegador para forzar la descarga
             const urlBlob = window.URL.createObjectURL(blob);
             const enlace = document.createElement('a');
             enlace.href = urlBlob;
-            enlace.download = `comprobante_venta_${idVenta}.jpg`; // Nombre del archivo que se descargará
+            enlace.download = `comprobante_venta_${idVenta}.jpg`;
 
-            // Simulamos el clic y limpiamos
             document.body.appendChild(enlace);
             enlace.click();
             document.body.removeChild(enlace);
@@ -47,9 +46,57 @@ export default function HistorialVentas() {
         }
     };
 
+    // --- NUEVA FUNCIÓN: EXPORTAR A EXCEL ---
+    const exportarExcel = () => {
+        if (ventas.length === 0) {
+            return alert('No hay ventas para exportar.');
+        }
+
+        // 1. Preparamos y formateamos los datos para Excel
+        const datosParaExcel = ventas.map(v => {
+            // Unimos los productos en un texto legible para el Excel
+            const textoProductos = v.productos_vendidos 
+                ? v.productos_vendidos.map(p => `${p.cantidad}x ${p.nombre}`).join(', ') 
+                : 'Sin detalles';
+
+            return {
+                'ID Venta': v.id,
+                'Fecha y Hora': new Date(v.fecha_hora).toLocaleString(),
+                'Vendedor': v.nombre_vendedor,
+                'Celular Cliente': v.celular || '-',
+                'Método de Pago': v.metodo_pago || '-',
+                'Documento': v.tipo_documento || '-',
+                'Detalle (Ubicación)': v.detalle_compra,
+                'Productos Llevados': textoProductos,
+                'Total (S/)': v.total
+            };
+        });
+
+        // 2. Creamos el archivo
+        const hoja = XLSX.utils.json_to_sheet(datosParaExcel);
+        const libro = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(libro, hoja, "Reporte GLI");
+
+        // 3. Forzamos la descarga con la fecha actual en el nombre
+        const fechaHoy = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(libro, `Reporte_Ventas_GLI_${fechaHoy}.xlsx`);
+    };
+
     return (
         <div className="dashboard-container" style={{ display: 'block', maxWidth: '1200px', margin: '40px auto' }}>
-            <h2 style={{ color: 'var(--primary)', marginBottom: '20px' }}>Relación de Ventas</h2>
+            
+            {/* CABECERA CON EL TÍTULO Y EL BOTÓN DE EXCEL */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+                <h2 style={{ color: 'var(--primary)', margin: 0 }}>Relación de Ventas</h2>
+                
+                <button 
+                    onClick={exportarExcel} 
+                    className="btn" 
+                    style={{ backgroundColor: '#059669', color: 'white', padding: '10px 20px', fontWeight: '600', boxShadow: 'var(--shadow-sm)' }}
+                >
+                    📊 Descargar Reporte Excel
+                </button>
+            </div>
 
             {/* CONTENEDOR RESPONSIVO PARA LA TABLA */}
             <div className="table-responsive">
