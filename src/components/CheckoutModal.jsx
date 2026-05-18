@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
 
 export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClose, onVentaExitosa }) {
@@ -9,8 +9,30 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     const [tipoDocumento, setTipoDocumento] = useState('Boleta');
     const [celular, setCelular] = useState('');
     
-    const [archivos, setArchivos] = useState([]); // Ahora es un arreglo de archivos
+    const [archivos, setArchivos] = useState([]); 
+    const [listaUsuarios, setListaUsuarios] = useState([]); // Nueva lista para la cuenta pública
     const [cargando, setCargando] = useState(false);
+
+    // Detectamos si es una cuenta pública
+    const esCuentaPublica = usuarioLogeado.username === 'publico' || usuarioLogeado.role === 'publico';
+
+    useEffect(() => {
+        // Si es cuenta pública, cargamos todos los usuarios para el menú desplegable
+        if (esCuentaPublica) {
+            const cargarUsuarios = async () => {
+                try {
+                    const res = await api.get('/usuarios');
+                    // Filtramos para que la palabra 'publico' no salga en la lista de vendedores
+                    const usuariosFiltrados = res.data.filter(u => u.username !== 'publico');
+                    setListaUsuarios(usuariosFiltrados);
+                    setVendedor(''); // Forzamos a elegir uno
+                } catch (error) {
+                    console.error('Error al cargar vendedores para cuenta pública:', error);
+                }
+            };
+            cargarUsuarios();
+        }
+    }, [esCuentaPublica]);
 
     const obtenerMoneda = (detalle) => detalle && detalle.includes('$') ? '$' : 'S/';
 
@@ -27,6 +49,9 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
 
     const manejarEnvio = async (e) => {
         e.preventDefault();
+        if (!vendedor) {
+            return alert('Por favor, selecciona el nombre del vendedor.');
+        }
         if (metodoPago === 'Yape/Plin' && archivos.length === 0) {
             return alert('Por favor, toma al menos una foto del pago.');
         }
@@ -43,7 +68,6 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
         const totalGeneral = totalSoles + (totalDolares * 3.8); 
         formData.append('total', totalGeneral); 
         
-        // Adjuntamos las fotos al formData con el nombre "capturas" (en plural)
         archivos.forEach((file) => {
             formData.append('capturas', file);
         });
@@ -70,7 +94,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         {carrito.map(item => (
                             <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>
                                 <div>
-                                    <div style={{ fontWeight: '600' }}>{item.nombre}</div>
+                                    <div style={{ font(Weight): '600' }}>{item.nombre}</div>
                                     <div style={{ fontSize: '13px', opacity: 0.8 }}>Cant: {item.cantidad}</div>
                                 </div>
                                 <div style={{ fontWeight: 'bold' }}>
@@ -86,7 +110,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                     </div>
                 </div>
 
-                {/* COLUMNA DERECHA: FORMULARIO MEJORADO */}
+                {/* COLUMNA DERECHA: FORMULARIO */}
                 <div className="checkout-formulario" style={{ overflowY: 'auto', maxHeight: '90vh' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2 style={{ margin: 0, color: 'var(--primary)' }}>Completar Venta</h2>
@@ -97,7 +121,22 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div>
                                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '5px', fontSize: '14px' }}>Vendedor:</label>
-                                <input type="text" value={vendedor} readOnly className="input-control" style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }} />
+                                {esCuentaPublica ? (
+                                    <select 
+                                        required
+                                        className="input-control" 
+                                        value={vendedor} 
+                                        onChange={(e) => setVendedor(e.target.value)}
+                                        style={{ border: '1px solid var(--primary)', backgroundColor: '#fff' }}
+                                    >
+                                        <option value="">-- Selecciona tu Nombre --</option>
+                                        {listaUsuarios.map(u => (
+                                            <option key={u.id} value={u.username}>{u.username.toUpperCase()}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input type="text" value={vendedor} readOnly className="input-control" style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }} />
+                                )}
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '5px', fontSize: '14px' }}>Celular (Cliente):</label>
@@ -124,14 +163,12 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         </div>
 
                         <div style={{ marginTop: '15px' }}>
-                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>Detalle de la Compra:</label>
+                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>Detail de la Compra:</label>
                             <textarea required className="input-control" rows="2" value={detalle} onChange={(e) => setDetalle(e.target.value)} />
                         </div>
 
-                        {/* SECCIÓN DOBLE CÁMARA */}
                         {metodoPago === 'Yape/Plin' && (
                             <div style={{ marginTop: '20px', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                
                                 {archivos.length < 2 && (
                                     <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '15px', border: '2px dashed var(--primary)', backgroundColor: '#f8fafc', borderRadius: '8px', cursor: 'pointer' }}>
                                         <span style={{ fontSize: '28px', marginBottom: '5px' }}>📷</span>
@@ -148,7 +185,6 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                                         <button type="button" onClick={() => quitarFoto(index)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
                                     </div>
                                 ))}
-
                             </div>
                         )}
 
