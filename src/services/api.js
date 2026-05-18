@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 const api = axios.create({
-    // CAMBIA LA IP POR LA QUE ANOTASTE EN EL PASO 1
     baseURL: 'https://salondelquesobackend.onrender.com/api', 
 });
 
@@ -11,7 +10,6 @@ api.interceptors.request.use((config) => {
     
     if (usuarioString) {
         const usuario = JSON.parse(usuarioString);
-        // Si el usuario tiene un token guardado, lo ponemos en la cabecera
         if (usuario.token) {
             config.headers.Authorization = `Bearer ${usuario.token}`;
         }
