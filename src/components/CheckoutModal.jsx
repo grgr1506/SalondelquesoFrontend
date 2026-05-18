@@ -10,22 +10,19 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     const [celular, setCelular] = useState('');
     
     const [archivos, setArchivos] = useState([]); 
-    const [listaUsuarios, setListaUsuarios] = useState([]); // Nueva lista para la cuenta pública
+    const [listaUsuarios, setListaUsuarios] = useState([]); 
     const [cargando, setCargando] = useState(false);
 
-    // Detectamos si es una cuenta pública
     const esCuentaPublica = usuarioLogeado.username === 'publico' || usuarioLogeado.role === 'publico';
 
     useEffect(() => {
-        // Si es cuenta pública, cargamos todos los usuarios para el menú desplegable
         if (esCuentaPublica) {
             const cargarUsuarios = async () => {
                 try {
                     const res = await api.get('/usuarios');
-                    // Filtramos para que la palabra 'publico' no salga en la lista de vendedores
                     const usuariosFiltrados = res.data.filter(u => u.username !== 'publico');
                     setListaUsuarios(usuariosFiltrados);
-                    setVendedor(''); // Forzamos a elegir uno
+                    setVendedor(''); 
                 } catch (error) {
                     console.error('Error al cargar vendedores para cuenta pública:', error);
                 }
@@ -87,14 +84,13 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     return (
         <div className="checkout-overlay">
             <div className="checkout-card" style={{ maxWidth: '1000px' }}>
-                {/* COLUMNA IZQUIERDA: RESUMEN DE COMPRA */}
                 <div className="checkout-resumen">
                     <h2 style={{ margin: '0 0 20px 0', fontSize: '28px' }}>Resumen de Orden</h2>
                     <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px', paddingRight: '10px' }}>
                         {carrito.map(item => (
                             <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>
                                 <div>
-                                    <div style={{ font(Weight): '600' }}>{item.nombre}</div>
+                                    <div style={{ fontWeight: '600' }}>{item.nombre}</div>
                                     <div style={{ fontSize: '13px', opacity: 0.8 }}>Cant: {item.cantidad}</div>
                                 </div>
                                 <div style={{ fontWeight: 'bold' }}>
@@ -110,7 +106,6 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                     </div>
                 </div>
 
-                {/* COLUMNA DERECHA: FORMULARIO */}
                 <div className="checkout-formulario" style={{ overflowY: 'auto', maxHeight: '90vh' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2 style={{ margin: 0, color: 'var(--primary)' }}>Completar Venta</h2>
@@ -163,7 +158,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         </div>
 
                         <div style={{ marginTop: '15px' }}>
-                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>Detail de la Compra:</label>
+                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>Detalle de la Compra:</label>
                             <textarea required className="input-control" rows="2" value={detalle} onChange={(e) => setDetalle(e.target.value)} />
                         </div>
 
