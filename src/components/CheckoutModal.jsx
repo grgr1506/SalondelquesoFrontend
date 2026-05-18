@@ -2,24 +2,33 @@ import { useState } from 'react';
 import api from '../services/api';
 
 export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClose, onVentaExitosa }) {
-    // Leemos el usuario que inició sesión y lo ponemos como valor inicial
     const usuarioLogeado = JSON.parse(localStorage.getItem('usuario')) || {};
     const [vendedor, setVendedor] = useState(usuarioLogeado.username || '');
     const [detalle, setDetalle] = useState('');
-    
     const [metodoPago, setMetodoPago] = useState('Yape/Plin');
     const [tipoDocumento, setTipoDocumento] = useState('Boleta');
     const [celular, setCelular] = useState('');
     
-    const [archivo, setArchivo] = useState(null);
+    const [archivos, setArchivos] = useState([]); // Ahora es un arreglo de archivos
     const [cargando, setCargando] = useState(false);
 
     const obtenerMoneda = (detalle) => detalle && detalle.includes('$') ? '$' : 'S/';
 
+    const manejarCaptura = (e) => {
+        const file = e.target.files[0];
+        if (file && archivos.length < 2) {
+            setArchivos([...archivos, file]);
+        }
+    };
+
+    const quitarFoto = (index) => {
+        setArchivos(archivos.filter((_, i) => i !== index));
+    };
+
     const manejarEnvio = async (e) => {
         e.preventDefault();
-        if (metodoPago === 'Yape/Plin' && !archivo) {
-            return alert('Por favor, sube o toma la captura de pantalla del pago.');
+        if (metodoPago === 'Yape/Plin' && archivos.length === 0) {
+            return alert('Por favor, toma al menos una foto del pago.');
         }
 
         setCargando(true);
@@ -33,9 +42,11 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
         
         const totalGeneral = totalSoles + (totalDolares * 3.8); 
         formData.append('total', totalGeneral); 
-        if (archivo) {
-            formData.append('captura', archivo);
-        }
+        
+        // Adjuntamos las fotos al formData con el nombre "capturas" (en plural)
+        archivos.forEach((file) => {
+            formData.append('capturas', file);
+        });
 
         try {
             await api.post('/ventas', formData);
@@ -52,7 +63,6 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     return (
         <div className="checkout-overlay">
             <div className="checkout-card" style={{ maxWidth: '1000px' }}>
-                
                 {/* COLUMNA IZQUIERDA: RESUMEN DE COMPRA */}
                 <div className="checkout-resumen">
                     <h2 style={{ margin: '0 0 20px 0', fontSize: '28px' }}>Resumen de Orden</h2>
@@ -87,13 +97,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div>
                                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '5px', fontSize: '14px' }}>Vendedor:</label>
-                                <input 
-                                    type="text" 
-                                    value={vendedor} 
-                                    readOnly 
-                                    className="input-control" 
-                                    style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }} 
-                                />
+                                <input type="text" value={vendedor} readOnly className="input-control" style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }} />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '5px', fontSize: '14px' }}>Celular (Cliente):</label>
@@ -120,53 +124,31 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         </div>
 
                         <div style={{ marginTop: '15px' }}>
-                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>
-                                Detalle de la Compra:
-                            </label>
+                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>Detalle de la Compra:</label>
                             <textarea required className="input-control" rows="2" value={detalle} onChange={(e) => setDetalle(e.target.value)} />
                         </div>
 
-                        {/* BOTÓN DE CÁMARA NATIVA PARA YAPE/PLIN */}
+                        {/* SECCIÓN DOBLE CÁMARA */}
                         {metodoPago === 'Yape/Plin' && (
-                            <div style={{ marginTop: '20px', marginBottom: '10px' }}>
-                                <label 
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        padding: '20px',
-                                        border: `2px dashed ${archivo ? 'var(--success)' : 'var(--primary)'}`,
-                                        backgroundColor: archivo ? '#ecfdf5' : '#f8fafc',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease'
-                                    }}
-                                >
-                                    <span style={{ fontSize: '32px', marginBottom: '8px' }}>
-                                        {archivo ? '✅' : '📷'}
-                                    </span>
-                                    <span style={{ fontWeight: '600', fontSize: '16px', color: archivo ? 'var(--success)' : 'var(--primary)' }}>
-                                        {archivo ? 'Foto capturada con éxito' : 'Tomar foto del Yape / Plin'}
-                                    </span>
-                                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px', textAlign: 'center' }}>
-                                        {archivo ? archivo.name : 'Se abrirá la cámara de tu celular'}
-                                    </span>
-                                    
-                                    {/* INPUT OCULTO QUE ACTIVA LA CÁMARA */}
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        capture="environment" 
-                                        style={{ display: 'none' }} 
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                setArchivo(file);
-                                            }
-                                        }} 
-                                    />
-                                </label>
+                            <div style={{ marginTop: '20px', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                
+                                {archivos.length < 2 && (
+                                    <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '15px', border: '2px dashed var(--primary)', backgroundColor: '#f8fafc', borderRadius: '8px', cursor: 'pointer' }}>
+                                        <span style={{ fontSize: '28px', marginBottom: '5px' }}>📷</span>
+                                        <span style={{ fontWeight: '600', fontSize: '15px', color: 'var(--primary)' }}>
+                                            {archivos.length === 0 ? 'Tomar Foto 1' : 'Tomar Foto 2 (Opcional)'}
+                                        </span>
+                                        <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={manejarCaptura} />
+                                    </label>
+                                )}
+
+                                {archivos.map((arch, index) => (
+                                    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 15px', border: '1px solid #10b981', borderRadius: '8px', backgroundColor: '#ecfdf5' }}>
+                                        <span style={{ color: '#047857', fontWeight: '600', fontSize: '14px' }}>✅ Foto {index + 1} capturada</span>
+                                        <button type="button" onClick={() => quitarFoto(index)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+                                    </div>
+                                ))}
+
                             </div>
                         )}
 
