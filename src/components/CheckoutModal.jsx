@@ -3,23 +3,29 @@ import api from '../services/api';
 
 export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClose, onVentaExitosa }) {
     const usuarioLogeado = JSON.parse(localStorage.getItem('usuario')) || {};
+    
+    // Estados principales
     const [vendedor, setVendedor] = useState(usuarioLogeado.username || '');
     const [detalle, setDetalle] = useState('');
     const [metodoPago, setMetodoPago] = useState('Yape/Plin');
     const [tipoDocumento, setTipoDocumento] = useState('Boleta');
     const [celular, setCelular] = useState('');
     
+    // Estados para las nuevas funciones (Cámara doble y Menú Público)
     const [archivos, setArchivos] = useState([]); 
     const [listaUsuarios, setListaUsuarios] = useState([]); 
     const [cargando, setCargando] = useState(false);
 
-    const esCuentaPublica = usuarioLogeado.username === 'publico' || usuarioLogeado.role === 'publico';
+    // Verificamos si el usuario actual es la cuenta pública de la tablet
+    const esCuentaPublica = usuarioLogeado.username === 'publico' || usuarioLogeado.rol === 'publico';
 
     useEffect(() => {
+        // Si es la cuenta pública, descargamos a todo el personal para armar el menú desplegable
         if (esCuentaPublica) {
             const cargarUsuarios = async () => {
                 try {
                     const res = await api.get('/usuarios');
+                    // Filtramos para que la cuenta "publico" no salga como opción de vendedor
                     const usuariosFiltrados = res.data.filter(u => u.username !== 'publico');
                     setListaUsuarios(usuariosFiltrados);
                     setVendedor(''); 
@@ -46,11 +52,13 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
 
     const manejarEnvio = async (e) => {
         e.preventDefault();
+        
         if (!vendedor) {
             return alert('Por favor, selecciona el nombre del vendedor.');
         }
+        
         if (metodoPago === 'Yape/Plin' && archivos.length === 0) {
-            return alert('Por favor, toma al menos una foto del pago.');
+            return alert('Por favor, toma al menos una foto del comprobante de pago.');
         }
 
         setCargando(true);
@@ -65,6 +73,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
         const totalGeneral = totalSoles + (totalDolares * 3.8); 
         formData.append('total', totalGeneral); 
         
+        // Enviamos todas las fotos capturadas
         archivos.forEach((file) => {
             formData.append('capturas', file);
         });
@@ -84,6 +93,8 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     return (
         <div className="checkout-overlay">
             <div className="checkout-card" style={{ maxWidth: '1000px' }}>
+                
+                {/* COLUMNA IZQUIERDA: RESUMEN DE COMPRA */}
                 <div className="checkout-resumen">
                     <h2 style={{ margin: '0 0 20px 0', fontSize: '28px' }}>Resumen de Orden</h2>
                     <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px', paddingRight: '10px' }}>
@@ -106,6 +117,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                     </div>
                 </div>
 
+                {/* COLUMNA DERECHA: FORMULARIO */}
                 <div className="checkout-formulario" style={{ overflowY: 'auto', maxHeight: '90vh' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2 style={{ margin: 0, color: 'var(--primary)' }}>Completar Venta</h2>
@@ -116,13 +128,15 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div>
                                 <label style={{ display: 'block', fontWeight: '600', marginBottom: '5px', fontSize: '14px' }}>Vendedor:</label>
+                                
+                                {/* LÓGICA DEL MENÚ DESPLEGABLE */}
                                 {esCuentaPublica ? (
                                     <select 
                                         required
                                         className="input-control" 
                                         value={vendedor} 
                                         onChange={(e) => setVendedor(e.target.value)}
-                                        style={{ border: '1px solid var(--primary)', backgroundColor: '#fff' }}
+                                        style={{ border: '2px solid var(--primary)', backgroundColor: '#fff', cursor: 'pointer' }}
                                     >
                                         <option value="">-- Selecciona tu Nombre --</option>
                                         {listaUsuarios.map(u => (
@@ -130,7 +144,13 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                                         ))}
                                     </select>
                                 ) : (
-                                    <input type="text" value={vendedor} readOnly className="input-control" style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }} />
+                                    <input 
+                                        type="text" 
+                                        value={vendedor} 
+                                        readOnly 
+                                        className="input-control" 
+                                        style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }} 
+                                    />
                                 )}
                             </div>
                             <div>
@@ -158,10 +178,13 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         </div>
 
                         <div style={{ marginTop: '15px' }}>
-                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>Detalle de la Compra:</label>
+                            <label style={{ display: 'block', fontWeight: '800', marginBottom: '5px', textDecoration: 'underline', color: 'var(--accent)' }}>
+                                Detalle de la Compra:
+                            </label>
                             <textarea required className="input-control" rows="2" value={detalle} onChange={(e) => setDetalle(e.target.value)} />
                         </div>
 
+                        {/* SECCIÓN DOBLE CÁMARA */}
                         {metodoPago === 'Yape/Plin' && (
                             <div style={{ marginTop: '20px', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 {archivos.length < 2 && (
@@ -176,7 +199,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
 
                                 {archivos.map((arch, index) => (
                                     <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 15px', border: '1px solid #10b981', borderRadius: '8px', backgroundColor: '#ecfdf5' }}>
-                                        <span style={{ color: '#047857', fontWeight: '600', fontSize: '14px' }}>✅ Foto {index + 1} capturada</span>
+                                        <span style={{ color: '#047857', fontWeight: '600', fontSize: '14px' }}>✅ Foto {index + 1} lista</span>
                                         <button type="button" onClick={() => quitarFoto(index)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
                                     </div>
                                 ))}
