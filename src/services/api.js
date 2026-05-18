@@ -4,16 +4,15 @@ const api = axios.create({
     baseURL: 'https://salondelquesobackend.onrender.com/api', 
 });
 
-// Interceptor para inyectar el token de seguridad automáticamente en cada petición
+// Interceptor corregido: Busca el token directamente donde tu Login lo guarda
 api.interceptors.request.use((config) => {
-    const usuarioString = localStorage.getItem('usuario');
+    const token = localStorage.getItem('token');
     
-    if (usuarioString) {
-        const usuario = JSON.parse(usuarioString);
-        if (usuario.token) {
-            config.headers.Authorization = `Bearer ${usuario.token}`;
-        }
+    // Si hay un token guardado, lo inyecta en la cabecera
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
+    
     return config;
 }, (error) => {
     return Promise.reject(error);
