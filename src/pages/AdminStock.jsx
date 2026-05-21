@@ -54,44 +54,36 @@ export default function AdminStock() {
                         </tr>
                     </thead>
                     <tbody>
-                        {productos.map(prod => {
-                            const esTesto = prod.nombre.toLowerCase().includes('testo');
-
-                            return (
-                                <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'white' }}>
-                                    <td style={{ padding: '15px', fontWeight: '500' }}>{prod.nombre}</td>
-                                    <td style={{ padding: '15px', color: 'var(--text-muted)' }}>{prod.detalle}</td>
-                                    <td style={{ padding: '15px', textAlign: 'center' }}>
-                                        
-                                        {/* Color y número adaptado a si es equipo o no */}
-                                        <div style={{ fontWeight: 'bold', fontSize: '18px', color: (prod.stock <= 5 && !esTesto) ? 'red' : 'var(--text-main)' }}>
-                                            {esTesto ? '-' : prod.stock}
+                        {productos.map(prod => (
+                            <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-light)', backgroundColor: 'white' }}>
+                                <td style={{ padding: '15px', fontWeight: '500' }}>{prod.nombre}</td>
+                                <td style={{ padding: '15px', color: 'var(--text-muted)' }}>{prod.detalle}</td>
+                                <td style={{ padding: '15px', textAlign: 'center' }}>
+                                    <div style={{ fontWeight: 'bold', fontSize: '18px', color: prod.stock <= 5 ? 'red' : 'var(--text-main)' }}>
+                                        {prod.stock}
+                                    </div>
+                                    {prod.stock <= 5 && prod.stock > 0 && (
+                                        <div style={{ fontSize: '12px', color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
+                                            ¡Bajo Stock!
                                         </div>
-
-                                        {/* Alertas de stock ocultas para los equipos */}
-                                        {(prod.stock <= 5 && prod.stock > 0 && !esTesto) && (
-                                            <div style={{ fontSize: '12px', color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
-                                                ¡Bajo Stock!
-                                            </div>
-                                        )}
-                                        {(prod.stock === 0 && !esTesto) && (
-                                            <div style={{ fontSize: '12px', color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
-                                                ¡Agotado!
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td style={{ padding: '15px', textAlign: 'center' }}>
-                                        <button 
-                                            onClick={() => agregarStock(prod.id, prod.nombre, prod.stock)}
-                                            className="btn btn-primary"
-                                            style={{ width: 'auto', padding: '8px 15px', fontSize: '14px', whiteSpace: 'nowrap' }}
-                                        >
-                                            + Agregar Stock
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                                    )}
+                                    {prod.stock === 0 && (
+                                        <div style={{ fontSize: '12px', color: 'red', fontWeight: 'bold', marginTop: '4px' }}>
+                                            ¡Agotado!
+                                        </div>
+                                    )}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center' }}>
+                                    <button 
+                                        onClick={() => agregarStock(prod.id, prod.nombre, prod.stock)}
+                                        className="btn btn-primary"
+                                        style={{ width: 'auto', padding: '8px 15px', fontSize: '14px', whiteSpace: 'nowrap' }}
+                                    >
+                                        + Agregar Stock
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
