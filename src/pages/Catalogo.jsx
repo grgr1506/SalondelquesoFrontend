@@ -10,10 +10,15 @@ export default function Catalogo() {
     const [busqueda, setBusqueda] = useState('');
 
     useEffect(() => {
+        // 1. Carga los productos inmediatamente al entrar a la página
         cargarProductos();
+
+        // 2. Configura un temporizador para consultar el stock cada 5 segundos (5000 milisegundos)
         const intervalo = setInterval(() => {
             cargarProductos();
         }, 5000);
+
+        // 3. Limpieza de memoria: Apaga el temporizador si el vendedor se va a otra pestaña (ej. Reposición)
         return () => clearInterval(intervalo);
     }, []);
 
@@ -39,12 +44,10 @@ export default function Catalogo() {
         e.preventDefault();
         const cantidad = parseInt(e.target.cantidad.value);
         const producto = productoSeleccionado;
-        const esTesto = producto.nombre.toLowerCase().includes('testo');
 
         if (isNaN(cantidad) || cantidad <= 0) return;
 
-        // Si NO es testo y la cantidad supera el stock, bloqueamos
-        if (!esTesto && cantidad > producto.stock) {
+        if (cantidad > producto.stock) {
             return alert(`Solo quedan ${producto.stock} unidades disponibles de ${producto.nombre}.`);
         }
 
@@ -52,7 +55,7 @@ export default function Catalogo() {
             const existe = carritoActual.find(item => item.id === producto.id);
             if (existe) {
                 const nuevaCantidad = existe.cantidad + cantidad;
-                if (!esTesto && nuevaCantidad > producto.stock) {
+                if (nuevaCantidad > producto.stock) {
                     alert('No puedes agregar más, supera el stock disponible.');
                     return carritoActual;
                 }
@@ -95,49 +98,36 @@ export default function Catalogo() {
                     onChange={(e) => setBusqueda(e.target.value)}
                 />
                 <div className="lista-productos">
-                    {productosFiltrados.map(prod => {
-                        const esTesto = prod.nombre.toLowerCase().includes('testo');
-                        
-                        return (
-                            <div 
-                                key={prod.id} 
-                                // Ocultamos la clase 'agotado' si es un producto Testo
-                                className={`item-lista ${(prod.stock === 0 && !esTesto) ? 'agotado' : ''}`}
-                                // Permitimos clickear si hay stock O si es un producto Testo
-                                onClick={() => (prod.stock > 0 || esTesto) && setProductoSeleccionado(prod)}
-                            >
-                                <div style={{ flex: '1' }}>
-                                    <div style={{ fontWeight: '600', fontSize: '16px' }}>{prod.nombre}</div>
-                                    <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>
-                                        {prod.detalle}
-                                    </div>
-                                </div>
-                                <div style={{ textAlign: 'center', width: '100px' }}>
-                                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Stock</span>
-                                    
-                                    {/* Evitamos el color rojo y el '0' si es Testo */}
-                                    <div style={{ fontWeight: 'bold', color: (prod.stock <= 5 && !esTesto) ? 'red' : 'var(--text-main)' }}>
-                                        {esTesto ? '-' : prod.stock}
-                                    </div>
-                                    
-                                    {/* Ocultamos las alertas de stock si es Testo */}
-                                    {(prod.stock <= 5 && prod.stock > 0 && !esTesto) && (
-                                        <div style={{ fontSize: '11px', color: 'red', fontWeight: 'bold', marginTop: '2px' }}>
-                                            ¡Bajo Stock!
-                                        </div>
-                                    )}
-                                    {(prod.stock === 0 && !esTesto) && (
-                                        <div style={{ fontSize: '11px', color: 'red', fontWeight: 'bold', marginTop: '2px' }}>
-                                            ¡Agotado!
-                                        </div>
-                                    )}
-                                </div>
-                                <div style={{ textAlign: 'right', width: '120px', fontWeight: '700', fontSize: '18px', color: 'var(--primary)' }}>
-                                    {obtenerMoneda(prod.detalle)} {prod.precio}
+                    {productosFiltrados.map(prod => (
+                        <div 
+                            key={prod.id} 
+                            className={`item-lista ${prod.stock === 0 ? 'agotado' : ''}`}
+                            onClick={() => prod.stock > 0 && setProductoSeleccionado(prod)}
+                        >
+                            <div style={{ flex: '1' }}>
+                                <div style={{ fontWeight: '600', fontSize: '16px' }}>{prod.nombre}</div>
+                                <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>
+                                    {prod.detalle}
                                 </div>
                             </div>
-                        );
-                    })}
+                            <div style={{ textAlign: 'center', width: '100px' }}>
+                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Stock</span>
+                                {/* Cambiamos el color a rojo si es menor o igual a 5 */}
+                                <div style={{ fontWeight: 'bold', color: prod.stock <= 5 ? 'red' : 'var(--text-main)' }}>
+                                    {prod.stock}
+                                </div>
+                                {/* Alerta de bajo stock: Solo aparece si hay entre 1 y 5 unidades */}
+                                {prod.stock <= 5 && prod.stock > 0 && (
+                                    <div style={{ fontSize: '11px', color: 'red', fontWeight: 'bold', marginTop: '2px' }}>
+                                        ¡Bajo Stock!
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ textAlign: 'right', width: '120px', fontWeight: '700', fontSize: '18px', color: 'var(--primary)' }}>
+                                {obtenerMoneda(prod.detalle)} {prod.precio}
+                            </div>
+                        </div>
+                    ))}
                     {productosFiltrados.length === 0 && (
                         <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px' }}>No se encontraron productos.</p>
                     )}
@@ -204,12 +194,7 @@ export default function Catalogo() {
                     <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center', padding: '30px' }}>
                         <h3 style={{ margin: '0 0 15px 0', color: 'var(--text-main)' }}>Agregar Producto</h3>
                         <p style={{ fontSize: '18px', fontWeight: '600', color: 'var(--primary)', marginBottom: '5px' }}>{productoSeleccionado.nombre}</p>
-                        
-                        <p style={{ color: 'var(--text-muted)', marginBottom: '25px' }}>
-                            {productoSeleccionado.nombre.toLowerCase().includes('testo') 
-                                ? 'Venta de Equipo o Accesorio' 
-                                : `Stock disponible: ${productoSeleccionado.stock}`}
-                        </p>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '25px' }}>Stock disponible: {productoSeleccionado.stock}</p>
                         
                         <form onSubmit={confirmarAgregarAlCarrito}>
                             <div style={{ marginBottom: '25px' }}>
@@ -218,7 +203,7 @@ export default function Catalogo() {
                                     type="number" 
                                     name="cantidad" 
                                     min="1" 
-                                    max={productoSeleccionado.nombre.toLowerCase().includes('testo') ? "999" : productoSeleccionado.stock} 
+                                    max={productoSeleccionado.stock} 
                                     defaultValue="1" 
                                     className="input-control"
                                     style={{ textAlign: 'center', fontSize: '24px', padding: '15px', fontWeight: 'bold' }}
