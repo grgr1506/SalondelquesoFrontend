@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 export default function HistorialVentas() {
     const [ventas, setVentas] = useState([]);
     const [filaExpandida, setFilaExpandida] = useState(null);
-    const [filtroVendedor, setFiltroVendedor] = useState(''); // Estado para el buscador
+    const [filtroVendedor, setFiltroVendedor] = useState('');
 
     useEffect(() => {
         const cargarVentas = async () => {
@@ -27,12 +27,10 @@ export default function HistorialVentas() {
         }
     };
 
-    // FUNCION DE ELIMINAR VENTA
     const manejarEliminar = async (idVenta) => {
         if (window.confirm('⚠️ ¿Estás seguro de ANULAR esta venta?\n\nLos productos vendidos regresarán al inventario automáticamente.')) {
             try {
                 await api.delete(`/ventas/${idVenta}`);
-                // Actualizamos la tabla borrando esa venta sin recargar la página
                 setVentas(ventas.filter(v => v.id !== idVenta));
                 alert('✅ Venta anulada exitosamente. Stock actualizado.');
             } catch (error) {
@@ -80,7 +78,6 @@ export default function HistorialVentas() {
         XLSX.writeFile(libro, `Reporte_Ventas_${new Date().toISOString().slice(0, 10)}.xlsx`);
     };
 
-    // FILTRAMOS LAS VENTAS EN BASE AL BUSCADOR
     const ventasFiltradas = ventas.filter(v => 
         v.nombre_vendedor.toLowerCase().includes(filtroVendedor.toLowerCase())
     );
@@ -95,7 +92,6 @@ export default function HistorialVentas() {
                 </button>
             </div>
 
-            {/* BARRA DE FILTRO POR VENDEDOR */}
             <div style={{ marginBottom: '20px' }}>
                 <input 
                     type="text" 
@@ -143,7 +139,6 @@ export default function HistorialVentas() {
                                                 {filaExpandida === venta.id ? 'Cerrar ⬆️' : 'Ver Detalles ⬇️'}
                                             </button>
                                             
-                                            {/* BOTÓN DE ELIMINAR */}
                                             <button onClick={() => manejarEliminar(venta.id)} className="btn" style={{ padding: '6px 12px', fontSize: '12px', backgroundColor: '#ef4444', color: 'white', width: '100%' }}>
                                                 🗑️ Anular
                                             </button>
@@ -157,12 +152,12 @@ export default function HistorialVentas() {
                                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px', alignItems: 'start' }}>
                                                 <div style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
                                                     <h4 style={{ margin: '0 0 15px 0', color: 'var(--primary)', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Información</h4>
+                                                    <p style={{ margin: '8px 0', fontSize: '14px' }}><strong>Celular Cliente:</strong> {venta.celular || 'No registrado'}</p>
                                                     <p style={{ margin: '8px 0', fontSize: '14px' }}><strong>Método:</strong> {venta.metodo_pago}</p>
                                                     <p style={{ margin: '8px 0', fontSize: '14px' }}><strong>Documento:</strong> {venta.tipo_documento}</p>
                                                     <p style={{ margin: '8px 0', fontSize: '14px' }}><strong>Ubicación/Detalle:</strong> {venta.detalle_compra}</p>
                                                 </div>
 
-                                                {/* MOSTRAR HASTA 2 IMÁGENES */}
                                                 <div style={{ textAlign: 'center' }}>
                                                     {venta.url_captura && venta.url_captura.split(',').map((url, idx) => (
                                                         <div key={idx} style={{ marginBottom: '15px' }}>
