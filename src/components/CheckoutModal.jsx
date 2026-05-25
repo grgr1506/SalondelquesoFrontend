@@ -93,11 +93,22 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
         onClose();
     };
 
-    // SI LA VENTA SE CONFIRMÓ, MOSTRAMOS EL TICKET DE RESUMEN
+    // =========================================================================
+    // SI LA VENTA SE CONFIRMÓ, MOSTRAMOS EL TICKET DE RESUMEN (CORREGIDO VISUALMENTE)
+    // =========================================================================
     if (ventaConfirmada) {
         return (
-            <div className="checkout-overlay">
-                <div className="checkout-card" style={{ maxWidth: '450px', textAlign: 'center', padding: '30px' }}>
+            <div className="checkout-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ 
+                    background: 'white', 
+                    borderRadius: '16px', 
+                    maxWidth: '450px', 
+                    width: '100%', 
+                    padding: '30px', 
+                    textAlign: 'center', 
+                    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+                    boxSizing: 'border-box'
+                }}>
                     <div style={{ fontSize: '60px', marginBottom: '10px' }}>✅</div>
                     <h2 style={{ color: '#059669', margin: '0 0 5px 0' }}>¡Venta Exitosa!</h2>
                     <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>El registro se ha guardado en el historial.</p>
@@ -134,7 +145,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
                         </div>
                     </div>
 
-                    <button onClick={finalizarYLimpiar} className="btn btn-success" style={{ width: '100%', padding: '15px', fontSize: '16px', fontWeight: 'bold' }}>
+                    <button onClick={finalizarYLimpiar} className="btn btn-success" style={{ width: '100%', padding: '15px', fontSize: '16px', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
                         Realizar Nueva Venta
                     </button>
                 </div>
@@ -142,7 +153,9 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
         );
     }
 
-    // SI NO SE HA CONFIRMADO, MOSTRAMOS EL FORMULARIO NORMAL
+    // =========================================================================
+    // SI NO SE HA CONFIRMADO, MOSTRAMOS EL FORMULARIO NORMAL CON SUS ESTILOS
+    // =========================================================================
     return (
         <div className="checkout-overlay">
             <div className="checkout-card" style={{ maxWidth: '1000px' }}>
