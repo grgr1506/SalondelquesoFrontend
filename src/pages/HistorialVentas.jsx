@@ -59,8 +59,9 @@ export default function HistorialVentas() {
     const exportarExcel = () => {
         if (ventasFiltradas.length === 0) return alert('No hay ventas para exportar.');
         const datosParaExcel = ventasFiltradas.map(v => {
+            // AQUI ESTÁ EL CAMBIO: Usamos \n para que salgan uno debajo del otro en la celda
             const textoProductos = v.productos_vendidos 
-                ? v.productos_vendidos.map(p => `${p.cantidad}x ${p.nombre}`).join(', ') 
+                ? v.productos_vendidos.map(p => `${p.cantidad}x ${p.nombre}`).join('\n') 
                 : 'Sin detalles';
             return {
                 'ID Venta': v.id,
