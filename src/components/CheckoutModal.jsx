@@ -16,7 +16,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     const [listaUsuarios, setListaUsuarios] = useState([]); 
     const [cargando, setCargando] = useState(false);
     
-    // NUEVO ESTADO: Controla si mostramos el formulario o el ticket de éxito
+    // Control de pantalla de éxito
     const [ventaConfirmada, setVentaConfirmada] = useState(false);
 
     const esCuentaPublica = usuarioLogeado.username === 'publico' || usuarioLogeado.rol === 'publico';
@@ -79,7 +79,6 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
 
         try {
             await api.post('/ventas', formData);
-            // EN LUGAR DE CERRAR, MOSTRAMOS EL TICKET DE RESUMEN
             setVentaConfirmada(true);
         } catch (error) {
             alert('Error al registrar la venta. ' + (error.response?.data?.mensaje || ''));
@@ -94,58 +93,83 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     };
 
     // =========================================================================
-    // SI LA VENTA SE CONFIRMÓ, MOSTRAMOS EL TICKET DE RESUMEN (CORREGIDO VISUALMENTE)
+    // PANTALLA DE ÉXITO COMPLETAMENTE AISLADA (EVITA HEREDAR ERRORES DEL CSS)
     // =========================================================================
     if (ventaConfirmada) {
         return (
-            <div className="checkout-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ 
+                position: 'fixed', 
+                top: 0, left: 0, right: 0, bottom: 0, 
+                backgroundColor: 'rgba(0, 0, 0, 0.6)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                zIndex: 99999,
+                padding: '20px',
+                boxSizing: 'border-box'
+            }}>
                 <div style={{ 
-                    background: 'white', 
+                    background: '#ffffff', 
                     borderRadius: '16px', 
                     maxWidth: '450px', 
                     width: '100%', 
                     padding: '30px', 
                     textAlign: 'center', 
                     boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    fontFamily: 'sans-serif'
                 }}>
                     <div style={{ fontSize: '60px', marginBottom: '10px' }}>✅</div>
-                    <h2 style={{ color: '#059669', margin: '0 0 5px 0' }}>¡Venta Exitosa!</h2>
-                    <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>El registro se ha guardado en el historial.</p>
+                    <h2 style={{ color: '#059669', margin: '0 0 5px 0', fontSize: '24px', fontWeight: 'bold' }}>¡Venta Exitosa!</h2>
+                    <p style={{ color: '#64748b', margin: '0 0 20px 0', fontSize: '14px' }}>El registro se ha guardado en el historial.</p>
                     
-                    <div style={{ textAlign: 'left', background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px dashed #cbd5e1', marginBottom: '25px' }}>
+                    <div style={{ textAlign: 'left', background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px dashed #cbd5e1', marginBottom: '25px', boxSizing: 'border-box' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Vendedor:</span>
-                            <span style={{ fontWeight: '600' }}>{vendedor.toUpperCase()}</span>
+                            <span style={{ color: '#64748b' }}>Vendedor:</span>
+                            <span style={{ fontWeight: '600', color: '#1e293b' }}>{vendedor.toUpperCase()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Método de Pago:</span>
-                            <span style={{ fontWeight: '600' }}>{metodoPago}</span>
+                            <span style={{ color: '#64748b' }}>Método de Pago:</span>
+                            <span style={{ fontWeight: '600', color: '#1e293b' }}>{metodoPago}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', fontSize: '14px' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>Documento:</span>
-                            <span style={{ fontWeight: '600' }}>{tipoDocumento}</span>
+                            <span style={{ color: '#64748b' }}>Documento:</span>
+                            <span style={{ fontWeight: '600', color: '#1e293b' }}>{tipoDocumento}</span>
                         </div>
 
                         <div style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', padding: '15px 0', marginBottom: '15px', maxHeight: '150px', overflowY: 'auto' }}>
                             {carrito.map(item => (
-                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                                    <span style={{ paddingRight: '10px' }}>{item.cantidad}x {item.nombre}</span>
+                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', color: '#1e293b' }}>
+                                    <span style={{ paddingRight: '10px', textAlign: 'left' }}>{item.cantidad}x {item.nombre}</span>
                                     <span style={{ fontWeight: '600', whiteSpace: 'nowrap' }}>{obtenerMoneda(item.detalle)} {(item.precio * item.cantidad).toFixed(2)}</span>
                                 </div>
                             ))}
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-main)' }}>Total Pagado:</span>
+                            <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>Total Pagado:</span>
                             <div style={{ textAlign: 'right' }}>
-                                {totalSoles > 0 && <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--primary)' }}>S/ {totalSoles.toFixed(2)}</div>}
+                                {totalSoles > 0 && <div style={{ fontSize: '20px', fontWeight: '800', color: '#2563eb' }}>S/ {totalSoles.toFixed(2)}</div>}
                                 {totalDolares > 0 && <div style={{ fontSize: '20px', fontWeight: '800', color: '#eab308' }}>$ {totalDolares.toFixed(2)}</div>}
                             </div>
                         </div>
                     </div>
 
-                    <button onClick={finalizarYLimpiar} className="btn btn-success" style={{ width: '100%', padding: '15px', fontSize: '16px', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+                    <button 
+                        onClick={finalizarYLimpiar} 
+                        style={{ 
+                            width: '100%', 
+                            padding: '15px', 
+                            fontSize: '16px', 
+                            fontWeight: 'bold', 
+                            backgroundColor: '#10b981', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '8px', 
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.2)'
+                        }}
+                    >
                         Realizar Nueva Venta
                     </button>
                 </div>
@@ -154,7 +178,7 @@ export default function CheckoutModal({ carrito, totalSoles, totalDolares, onClo
     }
 
     // =========================================================================
-    // SI NO SE HA CONFIRMADO, MOSTRAMOS EL FORMULARIO NORMAL CON SUS ESTILOS
+    // FORMULARIO DE REGISTRO NORMAL
     // =========================================================================
     return (
         <div className="checkout-overlay">
