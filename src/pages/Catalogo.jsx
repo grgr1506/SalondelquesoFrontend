@@ -140,11 +140,9 @@ export default function Catalogo() {
                             </div>
                             <div style={{ textAlign: 'center', width: '100px' }}>
                                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Stock</span>
-                                {/* DE VUELTA AL ROJO ORIGINAL */}
                                 <div style={{ fontWeight: 'bold', color: prod.stock <= 5 ? 'red' : 'var(--text-main)' }}>
                                     {prod.stock}
                                 </div>
-                                {/* DE VUELTA AL ROJO ORIGINAL */}
                                 {prod.stock <= 5 && prod.stock > 0 && (
                                     <div style={{ fontSize: '11px', color: 'red', fontWeight: 'bold', marginTop: '2px' }}>
                                         ¡Bajo Stock!
@@ -245,8 +243,8 @@ export default function Catalogo() {
                                     name="cantidad" 
                                     min="1" 
                                     max={productoSeleccionado.stock} 
-                                    defaultValue="1" 
                                     className="input-control"
+                                    placeholder="0"
                                     style={{ textAlign: 'center', fontSize: '22px', padding: '12px', fontWeight: 'bold' }}
                                     autoFocus
                                 />
