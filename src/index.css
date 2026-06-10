@@ -1,7 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* =========================================================
-   RESET ANTI-SCROLL HORIZONTAL (LA CAJA FUERTE)
+   VARIABLES CORPORATIVAS UNIFICADAS
+   ========================================================= */
+:root {
+  --bg-body: #f1f5f9;       /* Fondo general del sistema */
+  --bg-card: #ffffff;       /* Blanco puro para paneles */
+  --text-main: #1f2937;     /* Texto gris oscuro profesional */
+  --text-muted: #64748b;    /* Textos secundarios */
+  
+  /* Paleta Corporativa Principal */
+  --primary: #1A365D;       /* Azul marino ejecutivo */
+  --primary-hover: #2B6CB0; 
+  --accent: #E53E3E;        /* Rojo para alertas/eliminar */
+  --success: #059669;       /* Verde para ventas y éxito */
+  --success-hover: #047857;
+  --white: #ffffff;
+
+  /* Sombras y Bordes */
+  --border-light: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+/* =========================================================
+   RESET TOTAL (GARANTIZA QUE NADA SE DESACOMODE)
    ========================================================= */
 html, body {
     width: 100%;
@@ -9,6 +36,10 @@ html, body {
     overflow-x: hidden !important;
     margin: 0;
     padding: 0;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 *, *::before, *::after {
@@ -16,45 +47,7 @@ html, body {
 }
 
 /* =========================================================
-   VARIABLES DE GLI - ESTILO EJECUTIVO Y FORMAL
-   ========================================================= */
-:root {
-  /* Fondo y tarjetas más sobrios (Escala de grises) */
-  --bg-body: #f3f4f6;       /* Gris claro tipo panel de administración */
-  --bg-card: #ffffff;       /* Blanco puro */
-  --text-main: #1f2937;     /* Texto gris muy oscuro, casi negro */
-  --text-muted: #6b7280;    /* Textos secundarios */
-  
-  /* COLORES CORPORATIVOS (Ajustados para formalidad) */
-  --primary: #524e9c;       /* Tu morado corporativo intacto */
-  --primary-hover: #3e3a7a; 
-  --accent: #0f172a;        /* Azul medianoche (reemplaza detalles rojos) */
-  --success: #059669;       /* Verde corporativo para ventas/cobros */
-  --success-hover: #047857;
-  --white: #ffffff;
-
-  /* Bordes y sombras sutiles (Diseño plano) */
-  --border-light: #e5e7eb;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  
-  /* Bordes más rectos (Estilo software financiero) */
-  --radius-md: 6px;
-  --radius-lg: 8px;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-body);
-  color: var(--text-main);
-  margin: 0;
-  padding: 0;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* =========================================================
-   NAVBAR FORMAL (Sólido, sin transparencias)
+   NAVBAR SUPERIOR FIJO
    ========================================================= */
 .navbar {
   background: var(--bg-card);
@@ -66,21 +59,25 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 40px;
+  padding: 10px 30px;
+  height: 65px; /* Altura controlada para monitores de 800px */
 }
 
 .navbar-brand {
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--primary);
-  letter-spacing: -0.5px;
-  text-transform: uppercase; /* Toque más institucional */
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
 }
 
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 20px;
+  gap: 15px;
   margin: 0;
   padding: 0;
 }
@@ -88,7 +85,7 @@ body {
 .nav-links a {
   text-decoration: none;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
   padding: 8px 12px;
   border-radius: var(--radius-md);
@@ -97,29 +94,22 @@ body {
 
 .nav-links a:hover, .nav-links a.active {
   color: var(--primary);
-  background-color: #f3f4f6;
-  font-weight: 600;
-}
-
-.logo-img {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-  display: block;
+  background-color: #f1f5f9;
 }
 
 /* =========================================================
-   GRID PRINCIPAL DEL CATÁLOGO
+   CONTENEDOR PRINCIPAL - OPTIMIZADO PARA 1340px
    ========================================================= */
 .dashboard-container {
-  max-width: 1400px;
-  margin: 30px auto;
-  padding: 0 20px;
+  max-width: 1310px; /* Deja 15px de margen exacto en laptops de 1340px */
+  margin: 25px auto;
+  padding: 0 15px;
   display: flex;
-  gap: 30px;
+  gap: 25px;
   align-items: flex-start;
 }
 
+/* Espacio principal del Catálogo */
 .dashboard-container > div:first-child {
   flex: 1;
   min-width: 0;
@@ -127,35 +117,35 @@ body {
 
 .grid-productos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
 }
 
 /* =========================================================
-   TARJETAS MODERNAS Y SOBRIAS
+   TARJETAS DE PRODUCTO (Catálogo)
    ========================================================= */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 15px;
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s ease; /* Hover sin saltos infantiles */
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
 .card:hover {
-  border-color: var(--primary);
+  border-color: var(--primary-hover);
   box-shadow: var(--shadow-md);
 }
 
 .card h4 {
-  margin: 0 0 10px 0;
-  font-size: 15px;
-  font-weight: 600;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-main);
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .card .categoria {
@@ -165,31 +155,60 @@ body {
   padding: 4px 8px;
   border-radius: 4px;
   display: inline-block;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .card .precio {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary);
-  margin: 12px 0;
+  margin: 10px 0;
 }
 
 /* =========================================================
-   BOTONES Y CONTROLES
+   CARRITO SIDEBAR (Lateral Derecho)
+   ========================================================= */
+.carrito-sidebar {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  width: 340px; /* Ancho fijo para no robarle espacio al catálogo */
+  flex-shrink: 0;
+  position: sticky;
+  top: 90px;
+  /* Altura dinámica respetando la altura de 800px de la pantalla */
+  max-height: calc(100vh - 120px); 
+  overflow-y: auto;
+}
+
+.carrito-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 13px;
+}
+
+.carrito-item:last-child {
+  border-bottom: none;
+}
+
+/* =========================================================
+   CONTROLES Y BOTONES GLOBALES
    ========================================================= */
 .input-control, .buscador-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 10px 12px;
   font-size: 14px;
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  background-color: #f9fafb;
+  background-color: #f8fafc;
   color: var(--text-main);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
   font-family: inherit;
   box-sizing: border-box;
 }
@@ -198,17 +217,12 @@ body {
   outline: none;
   border-color: var(--primary);
   background-color: var(--white);
-  box-shadow: 0 0 0 2px rgba(82, 78, 156, 0.15);
-}
-
-.buscador-input {
-  margin-bottom: 20px;
 }
 
 .btn {
-  padding: 10px 16px;
+  padding: 10px 15px;
   border-radius: var(--radius-md);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
   border: none;
   cursor: pointer;
@@ -216,144 +230,24 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: inherit;
 }
 
-.btn-primary {
-  background-color: var(--primary);
-  color: var(--white);
-  width: 100%;
-}
+.btn-primary { background-color: var(--primary); color: var(--white); width: 100%; }
+.btn-primary:hover { background-color: var(--primary-hover); }
 
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-}
-
-.btn-success {
-  background-color: var(--success); /* Verde corporativo en lugar de rojo */
-  color: var(--white);
-  width: 100%;
-  font-size: 15px;
-  padding: 14px;
-  font-weight: 600;
-}
-
-.btn-success:hover {
-  background-color: var(--success-hover);
-}
+.btn-success { background-color: var(--success); color: var(--white); width: 100%; padding: 12px; }
+.btn-success:hover { background-color: var(--success-hover); }
 
 /* =========================================================
-   CARRITO SIDEBAR Y LISTAS
-   ========================================================= */
-.carrito-sidebar {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
-  width: 380px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 80px;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
-}
-
-.carrito-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-light);
-  font-size: 14px;
-}
-
-.carrito-item:last-child {
-  border-bottom: none;
-}
-
-.lista-productos {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.item-lista {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 20px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-
-.item-lista:hover {
-  border-color: var(--primary);
-  background-color: #f9fafb;
-}
-
-.item-lista.agotado {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background-color: #f3f4f6;
-}
-
-/* =========================================================
-   MODAL DE CHECKOUT (Pantalla de cobro dividida formal)
-   ========================================================= */
-.checkout-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background-color: rgba(31, 41, 55, 0.85); /* Fondo oscuro liso */
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow-y: auto;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.checkout-card {
-  background: var(--white);
-  width: 100%;
-  max-width: 900px;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  overflow: hidden;
-  border: 1px solid var(--border-light);
-}
-
-/* Resumen ahora es un gris ejecutivo en lugar de morado puro */
-.checkout-resumen {
-  background: #f8fafc;
-  color: var(--text-main);
-  padding: 40px;
-  width: 40%;
-  border-right: 1px solid var(--border-light);
-}
-
-.checkout-formulario {
-  padding: 40px;
-  width: 60%;
-}
-
-/* =========================================================
-   TABLAS RESPONSIVAS (Para el Historial/Stock)
+   TABLAS (Para Historial y Usuarios)
    ========================================================= */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   background: var(--white);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
-  margin-top: 20px;
 }
 
 .table-responsive table {
@@ -363,110 +257,46 @@ body {
 }
 
 .table-responsive th {
-  background-color: #f9fafb;
+  background-color: #f8fafc;
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 14px 16px;
+  padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 2px solid var(--border-light);
 }
 
 .table-responsive td {
-  padding: 14px 16px;
-  font-size: 14px;
+  padding: 12px 15px;
+  font-size: 13px;
   border-bottom: 1px solid var(--border-light);
-  color: var(--text-main);
 }
 
 /* =========================================================
-   DISEÑO RESPONSIVO MULTIPANTALLA (GLI DEFINITIVO)
+   RESPONSIVO PARA TABLETS Y CELULARES
    ========================================================= */
 @media (max-width: 1024px) {
   .dashboard-container {
       flex-direction: column;
-      gap: 20px;
-      margin: 20px auto;
   }
   .carrito-sidebar {
       width: 100%;
       position: static;
       max-height: none;
-      border-top: 4px solid var(--primary);
   }
 }
 
 @media (max-width: 768px) {
   .dashboard-container {
       padding: 0 10px;
-      margin: 10px auto;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-  }
-  .dashboard-container > div:first-child { order: 2; }
-  .carrito-sidebar {
-      order: 1;
-      position: static !important;
-      width: 100% !important;
-      max-height: 280px;
-      margin-bottom: 20px;
-      padding: 15px;
-      border-top: 4px solid var(--primary);
   }
   .navbar {
       flex-direction: column;
-      padding: 10px 0;
-  }
-  .navbar-brand {
-      margin-bottom: 10px;
-      justify-content: center;
-      width: 100%;
+      height: auto;
+      padding: 10px;
   }
   .nav-links {
-      width: 100%;
-      justify-content: space-evenly;
-      padding: 0 5px;
-  }
-  .nav-links a {
-      font-size: 13px;
-      padding: 8px 5px;
-      flex: 1;
-      text-align: center;
-      border: 1px solid var(--border-light);
-  }
-  .item-lista {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 8px;
-  }
-  .item-lista > div {
-      width: 100% !important; 
-      text-align: left !important;
-  }
-  .item-lista > div:last-child {
-      font-size: 18px !important;
-      color: var(--primary) !important;
-  }
-  .checkout-card {
-      flex-direction: column;
-      height: 95vh;
-      width: 100% !important;
-      border-radius: 0;
-  }
-  .checkout-resumen, .checkout-formulario {
-      width: 100% !important;
-      padding: 20px 15px;
-      border-right: none;
-  }
-  .checkout-formulario form > div {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 15px;
-  }
-  .table-responsive {
-      width: calc(100vw - 20px) !important;
+      flex-wrap: wrap;
+      justify-content: center;
   }
 }
