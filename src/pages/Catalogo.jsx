@@ -140,11 +140,13 @@ export default function Catalogo() {
                             </div>
                             <div style={{ textAlign: 'center', width: '100px' }}>
                                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Stock</span>
-                                <div style={{ fontWeight: 'bold', color: prod.stock <= 5 ? 'var(--accent)' : 'var(--text-main)' }}>
+                                {/* DE VUELTA AL ROJO ORIGINAL */}
+                                <div style={{ fontWeight: 'bold', color: prod.stock <= 5 ? 'red' : 'var(--text-main)' }}>
                                     {prod.stock}
                                 </div>
+                                {/* DE VUELTA AL ROJO ORIGINAL */}
                                 {prod.stock <= 5 && prod.stock > 0 && (
-                                    <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 'bold', marginTop: '2px' }}>
+                                    <div style={{ fontSize: '11px', color: 'red', fontWeight: 'bold', marginTop: '2px' }}>
                                         ¡Bajo Stock!
                                     </div>
                                 )}
